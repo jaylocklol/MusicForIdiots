@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rec's Hidden Music Collection</title>
+    <style>
+        /* Vibrant retro CSS */
+        body {
+            margin: 0;
+            font-family: "Comic Sans MS", sans-serif;
+            background-color: #ffdd57; /* Bright background color */
+            color: #333333;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fffacd; /* Light background for contrast */
+            border: 4px solid #ff6347; /* Bold border */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #ff4500;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 0 #FFFFFF;
+        }
+        #searchBar {
+            margin-top: 15px;
+            padding: 10px;
+            font-size: 1.2em;
+            width: 80%;
+            border: 2px solid #ff4500;
+            background-color: #fef9e7;
+            color: #333;
+        }
+        .music-list {
+            margin-top: 20px;
+            padding: 10px;
+        }
+        .song {
+            padding: 10px;
+            margin: 8px 0;
+            background-color: #ffe4b5; /* Light tan color */
+            border: 2px solid #ff6347;
+            color: #000;
+        }
+        .song a {
+            color: #ff4500;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .song a:hover {
+            text-decoration: underline;
+            color: #ff6347;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rec's Hidden Music Collection</h1>
+        <p>Explore rare tunes from the hidden archives!</p>
+
+        <!-- Search Bar -->
+        <input type="text" id="searchBar" placeholder="Search for a song...">
+
+        <!-- Music List -->
+        <div id="musicList" class="music-list">
+            <!-- JavaScript will load MP3 links here -->
+        </div>
+    </div>
+
+    <script>
+        // Load CSV file and parse it
+        async function loadCSV() {
+            const response = await fetch('songs.csv');
+            const csvText = await response.text();
+            return parseCSV(csvText);
+        }
+
+        // Parse CSV text to extract song data
+        function parseCSV(text) {
+            const rows = text.trim().split('\n').slice(1); // Skip header
+            return rows.map(row => {
+                const [name, url] = row.split(',');
+                return { name, url };
+            });
+        }
+
+        // Display songs in the list
+        function displaySongs(songs, filter = '') {
+            const musicList = document.getElementById('musicList');
+            musicList.innerHTML = ''; // Clear existing list
+
+            const filteredSongs = songs.filter(song => song.name.toLowerCase().includes(filter.toLowerCase()));
+            filteredSongs.forEach(song => {
+                const songElement = document.createElement('div');
+                songElement.className = 'song';
+
+                // Create a link for downloading the song
+                const songLink = document.createElement('a');
+                songLink.href = song.url;
+                songLink.download = song.name;
+                songLink.textContent = song.name;
+
+                songElement.appendChild(songLink);
+                musicList.appendChild(songElement);
+            });
+        }
+
+        // Initialize page with songs loaded from CSV
+        document.addEventListener('DOMContentLoaded', async () => {
+            const songs = await loadCSV();
+            displaySongs(songs);
+
+            // Add search functionality
+            const searchBar = document.getElementById('searchBar');
+            searchBar.addEventListener('input', () => {
+                displaySongs(songs, searchBar.value);
+            });
+        });
+    </script>
+</body>
+</html>
